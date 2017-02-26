@@ -92,3 +92,101 @@ TEST(TestingBinaryTree, IsBalancedCompleteTree) {
     );    
     ASSERT_TRUE(IsBalanced(root));
 }
+
+
+TEST(TestingBinaryTree, IsSymmetricA) {
+    auto const root = make_node(
+        314, 
+        make_node(
+            6, 
+            nullptr,
+            make_node(
+                2,
+                nullptr,
+                make_node(3)
+            )
+        ),
+        make_node(
+            6, 
+            make_node(
+                2,
+                make_node(3),
+                nullptr
+            ),
+            nullptr
+        )
+    );    
+    ASSERT_TRUE(IsSymmetric(root));
+}
+
+
+TEST(TestingBinaryTree, IsSymmetricB) {
+    auto const root = make_node(
+        314, 
+        make_node(
+            6, 
+            nullptr,
+            make_node(
+                561,
+                nullptr,
+                make_node(3)
+            )
+        ),
+        make_node(
+            6, 
+            make_node(
+                2,
+                make_node(1),
+                nullptr
+            ),
+            nullptr
+        )
+    );    
+    ASSERT_FALSE(IsSymmetric(root));
+}
+TEST(TestingBinaryTree, IsSymmetricC) {
+    auto const root = make_node(
+        314, 
+        make_node(
+            6, 
+            nullptr,
+            make_node(
+                561,
+                nullptr,
+                make_node(3)
+            )
+        ),
+        make_node(
+            6, 
+            make_node(561),
+            nullptr
+        )
+    );    
+    ASSERT_FALSE(IsSymmetric(root));
+}
+
+
+TEST(TestingBinaryTree, LCA) {
+    auto const root = make_node(
+        314, 
+        make_node(
+            6, 
+            make_node(8),
+            make_node(
+                561,
+                make_node(9),
+                make_node(3)
+            )
+        ),
+        make_node(
+            6, 
+            make_node(561),
+            make_node(123)
+        )
+    );    
+    auto lca = EPI::BinaryTree::LCA(root, root->left->left, root->right->right);
+    ASSERT_EQ(lca, root.get());
+    lca = EPI::BinaryTree::LCA(root, root->left->left, root->left->right);
+    ASSERT_EQ(lca, root->left.get());
+ }
+

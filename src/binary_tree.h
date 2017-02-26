@@ -58,6 +58,7 @@ void TreeTraversal(const node_ptr<T>& root) {
      }
 };
 
+// Balanced
 struct CheckBalanceSt {
     bool balanced;
     int height;
@@ -82,5 +83,67 @@ template<typename T>
 bool IsBalanced(const node_ptr<T>& tree) {
     return CheckBalance(tree).balanced;
 }
+
+
+// Symmetric
+template<typename T>
+bool IsSymmetric(const node_ptr<T>& tree) {
+    return (!tree) || CheckSymmetric(tree->left, tree->right);
+}
+
+template<typename T>
+bool CheckSymmetric(const node_ptr<T>& left, const node_ptr<T>& right) {
+    if (left == nullptr && right == nullptr) {
+        return true;
+    }
+    if (left != nullptr && right != nullptr) {
+        return ((left->data == right->data)
+            && CheckSymmetric(left->left, right->right)
+            && CheckSymmetric(left->right, right->left));
+    } else {
+        return false;
+    }
+}
+
+// Lowest Common Ancestor
+
+template<typename T>
+struct LCA_Status {
+    int num_found;
+    Node<T>* lca;
+};
+
+template<typename T>
+LCA_Status<T> LCAHelper(const node_ptr<T>& subtree,
+                     const node_ptr<T>& node0,
+                     const node_ptr<T>& node1) {
+    if (subtree == nullptr) {
+        return {0, nullptr};
+    }
+    int num_found_here = (subtree == node0) ? 1 : 0;
+    if (subtree == node1) {
+        num_found_here++;
+    }
+    auto l_status = LCAHelper(subtree->left, node0, node1);
+    if (l_status.lca != nullptr) {
+        return l_status;
+    }
+    auto r_status = LCAHelper(subtree->right, node0, node1);
+    if (r_status.lca != nullptr) {
+        return r_status;
+    } 
+    auto num_found = l_status.num_found + r_status.num_found + num_found_here;
+    auto maybe_lca = num_found == 2 ? subtree.get() : nullptr;
+    return { num_found, maybe_lca };
+}
+ 
+
+template<typename T>
+Node<T>* LCA(const node_ptr<T>& tree,
+             const node_ptr<T>& node0,
+             const node_ptr<T>& node1) {
+    return LCAHelper(tree, node0, node1).lca;
+}
+
 
 }} // EPI::BinaryTree
