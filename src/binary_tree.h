@@ -16,31 +16,41 @@ struct Node {
     T data;
     node_ptr<T> left;
     node_ptr<T> right;
+    Node<T>* parent;
 
     Node(T const& data, node_ptr<T> left, node_ptr<T> right)
         : data(data)
         , left(std::move(left))
         , right(std::move(right))
+        , parent(nullptr)
     {}
 };
 
 template<typename T>
 auto make_node(T const& value, node_ptr<T> lhs = nullptr, node_ptr<T> rhs = nullptr)
 {
-    return std::make_unique<Node<T>>(value, std::move(lhs), std::move(rhs));    
+    auto node = std::make_unique<Node<T>>(value, std::move(lhs), std::move(rhs));
+    if (node->left) { node->left->parent = node.get(); }
+    if (node->right) { node->right->parent = node.get(); }
+    return node;
 }
+
 
 // compiler can't deduce that I want a nullptr to be used as the node_ptr<T> lhs.
 // so this function handles the case where a right child is provided but not a left.
 template<typename T>
 auto make_node(T const& value, std::nullptr_t lhs, node_ptr<T> rhs)
 {
-    return std::make_unique<Node<T>>(value, std::move(lhs), std::move(rhs));    
+    auto node = std::make_unique<Node<T>>(value, std::move(lhs), std::move(rhs));
+    if (node->right) { node->right->parent = node.get(); }
+    return node;
 }
 template<typename T>
 auto make_node(T const& value, node_ptr<T> lhs, std::nullptr_t rhs)
 {
-    return std::make_unique<Node<T>>(value, std::move(lhs), std::move(rhs));    
+    auto node = std::make_unique<Node<T>>(value, std::move(lhs), std::move(rhs));
+    if (node->left) { node->left->parent = node.get(); }
+    return node;
 }
 
 
@@ -145,5 +155,84 @@ Node<T>* LCA(const node_ptr<T>& tree,
     return LCAHelper(tree, node0, node1).lca;
 }
 
+template<typename T>
+int GetDepth(const Node<T>* node) {
+    if (node->parent == nullptr) {
+        return 0;
+    } else {
+        return 1 + GetDepth(node->parent);
+    }
+}
+
+template<typename T>
+Node<T>* LCAWithParent(const node_ptr<T>& tree,
+             const node_ptr<T>& node0,
+             const node_ptr<T>& node1) {
+    auto node0_iter = node0.get();
+    auto node1_iter = node1.get();
+    auto depth0 = GetDepth(node0_iter);
+    auto depth1 = GetDepth(node1_iter);
+     // bring the nodes to the same depth
+    while (depth0 > depth1 && node0_iter->parent != nullptr) {
+        node0_iter = node0_iter->parent;
+        depth0--;
+    }
+    while (depth1 > depth0 && node1_iter->parent != nullptr) {
+        node1_iter = node1_iter->parent;
+        depth1--;
+    }
+    while (node0_iter->parent != node1_iter->parent) {
+        node0_iter = node0_iter->parent;
+        node1_iter = node1_iter->parent;
+    }
+    return node0_iter->parent;
+}
+
+template<typename T>
+int SumRootToLeafHelper(const node_ptr<T>& subtree, int path_so_far) {
+    auto path_including_here = (path_so_far << 1) + subtree->data;
+    auto sum = 0;
+    if (subtree->left) {
+        sum += SumRootToLeafHelper(subtree->left, path_including_here);
+    }
+    if (subtree->right) {
+        sum += SumRootToLeafHelper(subtree->right, path_including_here);
+    }
+    if (subtree->left == nullptr && subtree->right == nullptr) {
+        sum = path_including_here;
+    }
+    return sum;
+}
+
+// SumRootToLeaf - compute the sum of the binary numbers representing
+// the root-to-leaf paths
+template<typename T>
+int SumRootToLeaf(const node_ptr<T>& tree) {
+    return SumRootToLeafHelper(tree, 0);
+}
+
+// HasPathSum
+template<typename T>
+bool HasPathSumHelper(const node_ptr<T>& subtree,
+        int current_path_weight,
+        int target_number) {
+    if (!subtree) { return false; }
+    auto weight = current_path_weight + subtree->data;
+    if (!subtree->left && !subtree->right) {
+        return weight == target_number;
+    }
+    if (HasPathSumHelper(subtree->left, weight, target_number)) {
+        return true;
+    }
+    if (HasPathSumHelper(subtree->right, weight, target_number)) {
+        return true;
+    }
+    return false;
+}
+
+template<typename T>
+bool HasPathSum(const node_ptr<T>& root, int target_number) {
+    return HasPathSumHelper(root, 0, target_number);
+}
 
 }} // EPI::BinaryTree
