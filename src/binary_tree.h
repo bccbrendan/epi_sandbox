@@ -1,6 +1,7 @@
 #pragma once
 #include <memory>
 #include <algorithm>
+#include "binary_tree_iterators.h"
 
 namespace EPI { namespace BinaryTree {
 
@@ -24,7 +25,27 @@ struct Node {
         , right(std::move(right))
         , parent(nullptr)
     {}
+
+    ForwardIterator<T> begin(void) {
+        return ForwardIterator<T>(this);
+    }
+
+    ForwardIterator<T> end(void) {
+        return ForwardIterator<T>(nullptr);
+    }
 };
+
+template<typename T>
+ForwardIterator<T> begin(Node<T> & tree) {
+    return tree.begin();
+}
+
+template<typename T>
+ForwardIterator<T> end(Node<T> & tree) {
+    return tree.end();
+}
+
+
 
 template<typename T>
 auto make_node(T const& value, node_ptr<T> lhs = nullptr, node_ptr<T> rhs = nullptr)

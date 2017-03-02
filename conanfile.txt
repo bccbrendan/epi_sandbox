@@ -1,11 +1,13 @@
 [requires]
-gtest/1.7.0@lasote/stable
+gtest/1.8.0@lasote/stable
+gmock/1.8.0@meshell/stable
 
 [generators]
 cmake
 
 [options]
 gtest:shared=True
+gmock:shared=True
 
 [imports]
 bin, *.dll -> ./build/bin

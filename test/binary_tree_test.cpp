@@ -1,9 +1,11 @@
 // SOURCE CODE FROM https://wiki.openssl.org/index.php/EVP_Symmetric_Encryption_and_Decryption
 
 #include <gtest/gtest.h>
+#include <gmock/gmock.h>
 #include "binary_tree.h"
 
 using namespace EPI::BinaryTree;
+using namespace ::testing;
 
 TEST(TestingBinaryTree, IsBalancedNull) {
     std::unique_ptr<EPI::BinaryTree::Node<int>> empty;
@@ -37,68 +39,68 @@ TEST(TestingBinaryTree, IsBalancedLeftLeftHeavy) {
 
 TEST(TestingBinaryTree, IsBalancedLeftRightHeavy) {
    auto const root = make_node(
-        5, 
+        5,
         make_node(
-            3, 
+            3,
             nullptr,
             make_node(2)
-        ), 
+        ),
         nullptr
-    );    
+    );
     ASSERT_FALSE(IsBalanced(root));
 }
 
 
 TEST(TestingBinaryTree, IsBalancedRightRightHeavy) {
     auto const root = make_node(
-        5, 
+        5,
         nullptr,
         make_node(
-            3, 
+            3,
             make_node(2),
             nullptr
         )
-    );    
+    );
     ASSERT_FALSE(IsBalanced(root));
 }
 
 TEST(TestingBinaryTree, IsBalancedRightLeftHeavy) {
     auto const root = make_node(
-        5, 
+        5,
         nullptr,
         make_node(
-            3, 
+            3,
             nullptr,
             make_node(2)
         )
-    );    
+    );
     ASSERT_FALSE(IsBalanced(root));
 }
 
 
 TEST(TestingBinaryTree, IsBalancedCompleteTree) {
     auto const root = make_node(
-        5, 
+        5,
         make_node(
-            3, 
+            3,
             make_node(4),
             make_node(8)
         ),
         make_node(
-            3, 
+            3,
             make_node(7),
             make_node(2)
         )
-    );    
+    );
     ASSERT_TRUE(IsBalanced(root));
 }
 
 
 TEST(TestingBinaryTree, IsSymmetricA) {
     auto const root = make_node(
-        314, 
+        314,
         make_node(
-            6, 
+            6,
             nullptr,
             make_node(
                 2,
@@ -107,7 +109,7 @@ TEST(TestingBinaryTree, IsSymmetricA) {
             )
         ),
         make_node(
-            6, 
+            6,
             make_node(
                 2,
                 make_node(3),
@@ -115,16 +117,16 @@ TEST(TestingBinaryTree, IsSymmetricA) {
             ),
             nullptr
         )
-    );    
+    );
     ASSERT_TRUE(IsSymmetric(root));
 }
 
 
 TEST(TestingBinaryTree, IsSymmetricB) {
     auto const root = make_node(
-        314, 
+        314,
         make_node(
-            6, 
+            6,
             nullptr,
             make_node(
                 561,
@@ -133,7 +135,7 @@ TEST(TestingBinaryTree, IsSymmetricB) {
             )
         ),
         make_node(
-            6, 
+            6,
             make_node(
                 2,
                 make_node(1),
@@ -141,14 +143,14 @@ TEST(TestingBinaryTree, IsSymmetricB) {
             ),
             nullptr
         )
-    );    
+    );
     ASSERT_FALSE(IsSymmetric(root));
 }
 TEST(TestingBinaryTree, IsSymmetricC) {
     auto const root = make_node(
-        314, 
+        314,
         make_node(
-            6, 
+            6,
             nullptr,
             make_node(
                 561,
@@ -157,20 +159,20 @@ TEST(TestingBinaryTree, IsSymmetricC) {
             )
         ),
         make_node(
-            6, 
+            6,
             make_node(561),
             nullptr
         )
-    );    
+    );
     ASSERT_FALSE(IsSymmetric(root));
 }
 
 
 TEST(TestingBinaryTree, LCA) {
     auto const root = make_node(
-        314, 
+        314,
         make_node(
-            6, 
+            6,
             make_node(8),
             make_node(
                 561,
@@ -179,11 +181,11 @@ TEST(TestingBinaryTree, LCA) {
             )
         ),
         make_node(
-            6, 
+            6,
             make_node(561),
             make_node(123)
         )
-    );    
+    );
     auto lca = EPI::BinaryTree::LCA(root, root->left->left, root->right->right);
     ASSERT_EQ(lca, root.get());
     lca = EPI::BinaryTree::LCA(root, root->left->left, root->left->right);
@@ -200,7 +202,7 @@ TEST(TestingBinaryTree, SumRootToLeafSimple) {
     auto const root = make_node(1, make_node(0), make_node(1));
     ASSERT_EQ(SumRootToLeaf(root->right), 1);
     ASSERT_EQ(SumRootToLeaf(root), 5);
-} 
+}
 
 // SumRootToLeaf -
 TEST(TestingBinaryTree, SumRootToLeaf) {
@@ -251,9 +253,9 @@ TEST(TestingBinaryTree, SumRootToLeaf) {
 
 TEST(TestingBinaryTree, HasPathSum) {
     auto const root = make_node(
-        314, 
+        314,
         make_node(
-            6, 
+            6,
             make_node(8),
             make_node(
                 561,
@@ -262,11 +264,11 @@ TEST(TestingBinaryTree, HasPathSum) {
             )
         ),
         make_node(
-            6, 
+            6,
             make_node(561),
             make_node(123)
         )
-    );    
+    );
     ASSERT_TRUE(HasPathSum(make_node(8), 8));
     ASSERT_TRUE(HasPathSum(root, 314 + 6 + 8));
     ASSERT_TRUE(HasPathSum(root, 314 + 6 + 8));
@@ -278,5 +280,31 @@ TEST(TestingBinaryTree, HasPathSum) {
 }
 
 
-
+TEST(TestingBinaryTree, InorderIterTest) {
+    auto const root = make_node(
+        314,
+        make_node(
+            6,
+            make_node(8),
+            make_node(
+                561,
+                make_node(9),
+                make_node(3)
+            )
+        ),
+        make_node(
+            6,
+            make_node(561),
+            make_node(123)
+        )
+    );
+    std::vector<int> results;
+    for (auto it = root->begin(); it != root->end(); ++it) {
+        results.push_back(*it);
+    }
+    ASSERT_THAT(results,
+        ContainerEq(
+            std::vector<int> { 8, 6, 9, 561, 3, 314, 561, 6, 123 }
+    ));
+}
 
